@@ -12,6 +12,7 @@ Right-click any image in Dolphin and select "Quick RMBG" to remove its backgroun
 
 - **Dolphin Context Menu**: Right-click integration for seamless workflow
 - **Two-Pass Mode**: Run background removal twice for cleaner results on difficult images
+- **Infinite Hop Mode**: Interactive mode that keeps running passes until you're satisfied
 - **GPU Acceleration**: Supports AMD (ROCm), NVIDIA (CUDA), and CPU fallback
 - **Preserves Originals**: Saves output as `filename_noBG.png` alongside the original
 - **Desktop Notifications**: Shows success/error status via KDE notifications
@@ -82,7 +83,10 @@ This will:
 
 1. Navigate to any folder with images
 2. Right-click on an image (PNG, JPG, JPEG, WEBP, BMP, TIFF)
-3. Select **"Quick RMBG"** for single-pass or **"Quick RMBG (Two-Pass)"** for better results
+3. Select one of:
+   - **"Quick RMBG"** - Single-pass removal
+   - **"Quick RMBG (Two-Pass)"** - Two passes for better results
+   - **"Quick RMBG (Infinite Hop)"** - Keep running until you're satisfied
 4. A notification will appear when complete
 5. Find the result saved as `originalname_noBG.png`
 
@@ -94,7 +98,18 @@ Some images leave residual background artifacts after a single pass. Two-pass mo
 - First pass: `originalname_noBG-first-pass.png`
 - Final result: `originalname_noBG-second-pass.png`
 
-> **Tip:** If you need three or more passes for particularly difficult images, you can modify the `remove_background_two_pass()` function in `quick_rmbg/cli.py` to add additional passes.
+### Infinite Hop Mode
+
+For images that need an unpredictable number of passes, Infinite Hop Mode lets you decide when the result is good enough. After each pass, a dialog asks if you're happy with the result:
+
+- Click **"Yes, I'm done!"** to stop and keep the current result
+- Click **"No, run another pass"** to process again
+
+**Output files:**
+- Each pass: `originalname_noBG-pass-1.png`, `originalname_noBG-pass-2.png`, etc.
+- All intermediate passes are preserved so you can compare
+
+> **Note:** This mode uses kdialog (KDE) or zenity (GNOME) for the interactive dialogs.
 
 ### From Command Line
 

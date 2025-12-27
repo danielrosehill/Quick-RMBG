@@ -149,6 +149,121 @@ def remove_background_two_pass(input_path: Path) -> tuple[bool, str]:
     return True, f"Two-pass background removal complete.\nFirst pass: {first_pass_path.name}\nFinal: {second_pass_path.name}"
 
 
+def _ask_user_happy(image_path: Path, pass_number: int) -> bool:
+    """
+    Ask the user if they're happy with the result using kdialog.
+
+    Args:
+        image_path: Path to the result image to show
+        pass_number: Current pass number for display
+
+    Returns:
+        True if user is happy, False if they want another pass
+    """
+    message = f"Pass {pass_number} complete!\n\nResult saved to:\n{image_path.name}\n\nAre you happy with the result?"
+
+    try:
+        # Use kdialog yesno dialog
+        result = subprocess.run(
+            [
+                "kdialog",
+                "--yesno",
+                message,
+                "--title",
+                "Quick RMBG - Infinite Hop Mode",
+                "--yes-label",
+                "Yes, I'm done!",
+                "--no-label",
+                "No, run another pass",
+            ],
+            capture_output=True,
+        )
+        # kdialog returns 0 for Yes, 1 for No
+        return result.returncode == 0
+
+    except FileNotFoundError:
+        # Fall back to zenity if kdialog not available
+        try:
+            result = subprocess.run(
+                [
+                    "zenity",
+                    "--question",
+                    "--text",
+                    message,
+                    "--title",
+                    "Quick RMBG - Infinite Hop Mode",
+                    "--ok-label",
+                    "Yes, I'm done!",
+                    "--cancel-label",
+                    "No, run another pass",
+                ],
+                capture_output=True,
+            )
+            return result.returncode == 0
+        except FileNotFoundError:
+            # No GUI available, assume user is happy after first pass
+            print("No dialog tool available (kdialog/zenity). Stopping after this pass.")
+            return True
+
+
+def remove_background_infinite_hop(input_path: Path) -> tuple[bool, str]:
+    """
+    Remove background from an image using rembg with infinite passes.
+
+    Runs rembg, asks user if happy, and repeats until satisfied.
+    Each pass saves to input_noBG-pass-N.png
+
+    Args:
+        input_path: Path to input image
+
+    Returns:
+        Tuple of (success, message)
+    """
+    # Validate input
+    if not input_path.exists():
+        return False, f"File not found: {input_path}"
+
+    if input_path.suffix.lower() not in SUPPORTED_FORMATS:
+        return False, f"Unsupported format: {input_path.suffix}"
+
+    # Prepare rembg
+    rembg_binary, model, env, error = _prepare_rembg()
+    if rembg_binary is None:
+        return False, error
+
+    pass_number = 1
+    current_input = input_path
+    final_output = None
+    all_passes = []
+
+    while True:
+        # Output path for this pass
+        output_path = input_path.parent / f"{input_path.stem}_noBG-pass-{pass_number}.png"
+
+        # Run rembg
+        success, error = _run_rembg(current_input, output_path, rembg_binary, model, env)
+        if not success:
+            return False, f"Pass {pass_number} failed: {error}"
+
+        all_passes.append(output_path.name)
+        final_output = output_path
+
+        # Ask user if they're happy
+        if _ask_user_happy(output_path, pass_number):
+            break
+
+        # User wants another pass - use this output as next input
+        current_input = output_path
+        pass_number += 1
+
+    # Build summary message
+    if pass_number == 1:
+        return True, f"Infinite Hop complete after 1 pass.\nFinal: {final_output.name}"
+    else:
+        passes_list = "\n".join(f"  Pass {i+1}: {p}" for i, p in enumerate(all_passes))
+        return True, f"Infinite Hop complete after {pass_number} passes.\n{passes_list}\nFinal: {final_output.name}"
+
+
 def show_notification(title: str, message: str, success: bool = True) -> None:
     """Show a desktop notification using kdialog or notify-send."""
     icon = "dialog-ok" if success else "dialog-error"
@@ -210,10 +325,23 @@ def main():
         action="store_true",
         help="Run background removal twice for better results",
     )
+    parser.add_argument(
+        "--infinite-hop",
+        action="store_true",
+        help="Run background removal repeatedly until you're happy with the result",
+    )
 
     args = parser.parse_args()
 
-    if args.two_pass:
+    # Check for conflicting options
+    if args.two_pass and args.infinite_hop:
+        print("Error: Cannot use --two-pass and --infinite-hop together", file=sys.stderr)
+        sys.exit(1)
+
+    if args.infinite_hop:
+        success, message = remove_background_infinite_hop(args.input)
+        title = "Quick RMBG (Infinite Hop)"
+    elif args.two_pass:
         success, message = remove_background_two_pass(args.input)
         title = "Quick RMBG (Two-Pass)"
     else:
