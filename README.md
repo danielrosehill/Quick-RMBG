@@ -120,6 +120,9 @@ quick-rmbg photo.jpg
 # Two-pass mode for cleaner results
 quick-rmbg --two-pass photo.jpg
 
+# Infinite hop mode - keep running until satisfied
+quick-rmbg --infinite-hop photo.jpg
+
 # Specify output path
 quick-rmbg photo.jpg -o transparent.png
 
