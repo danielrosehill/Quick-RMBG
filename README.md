@@ -1,5 +1,7 @@
 # Quick-RMBG
 
+![alt text](banners/1.png)
+
 KDE Dolphin integration for quick background removal using [rembg](https://github.com/danielgatis/rembg).
 
 Right-click any image in Dolphin and select "Quick RMBG" to remove its background instantly.
