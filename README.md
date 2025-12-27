@@ -11,6 +11,7 @@ Right-click any image in Dolphin and select "Quick RMBG" to remove its backgroun
 ## Features
 
 - **Dolphin Context Menu**: Right-click integration for seamless workflow
+- **Two-Pass Mode**: Run background removal twice for cleaner results on difficult images
 - **GPU Acceleration**: Supports AMD (ROCm), NVIDIA (CUDA), and CPU fallback
 - **Preserves Originals**: Saves output as `filename_noBG.png` alongside the original
 - **Desktop Notifications**: Shows success/error status via KDE notifications
@@ -81,15 +82,28 @@ This will:
 
 1. Navigate to any folder with images
 2. Right-click on an image (PNG, JPG, JPEG, WEBP, BMP, TIFF)
-3. Select **"Quick RMBG"**
+3. Select **"Quick RMBG"** for single-pass or **"Quick RMBG (Two-Pass)"** for better results
 4. A notification will appear when complete
 5. Find the result saved as `originalname_noBG.png`
+
+### Two-Pass Mode
+
+Some images leave residual background artifacts after a single pass. Two-pass mode runs rembg twice—first on the original, then on the result—for cleaner output.
+
+**Output files:**
+- First pass: `originalname_noBG-first-pass.png`
+- Final result: `originalname_noBG-second-pass.png`
+
+> **Tip:** If you need three or more passes for particularly difficult images, you can modify the `remove_background_two_pass()` function in `quick_rmbg/cli.py` to add additional passes.
 
 ### From Command Line
 
 ```bash
 # Basic usage
 quick-rmbg photo.jpg
+
+# Two-pass mode for cleaner results
+quick-rmbg --two-pass photo.jpg
 
 # Specify output path
 quick-rmbg photo.jpg -o transparent.png
