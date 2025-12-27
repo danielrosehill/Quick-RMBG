@@ -62,6 +62,8 @@ echo "=== Installation Complete ==="
 echo
 echo "Quick-RMBG is now available:"
 echo "  - Right-click any image in Dolphin → 'Quick RMBG'"
+echo "  - Right-click any image in Dolphin → 'Quick RMBG (Two-Pass)'"
 echo "  - CLI: quick-rmbg <image>"
+echo "  - CLI: quick-rmbg --two-pass <image>"
 echo
 echo "Optional config: ~/.config/quick-rmbg/config.json"

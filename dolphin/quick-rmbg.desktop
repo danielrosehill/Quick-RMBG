@@ -2,10 +2,16 @@
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin
 MimeType=image/png;image/jpeg;image/webp;image/bmp;image/tiff;
-Actions=removeBackground;
+Actions=removeBackground;removeBackgroundTwoPass;
 
 [Desktop Action removeBackground]
 Name=Quick RMBG
 Comment=Remove background from this image
 Icon=edit-image-face-remove
 Exec=quick-rmbg "%f"
+
+[Desktop Action removeBackgroundTwoPass]
+Name=Quick RMBG (Two-Pass)
+Comment=Remove background with two passes for better results
+Icon=edit-image-face-remove
+Exec=quick-rmbg --two-pass "%f"
