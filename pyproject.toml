@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quick-rmbg"
+version = "0.1.0"
+description = "KDE Dolphin integration for quick background removal using RMBG"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Daniel Rosehill", email = "public@danielrosehill.com" },
+]
+keywords = ["rmbg", "background-removal", "kde", "dolphin", "image-processing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: KDE",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+]
+
+[project.scripts]
+quick-rmbg = "quick_rmbg.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/danielrosehill/Quick-RMBG"
+Repository = "https://github.com/danielrosehill/Quick-RMBG"
+
+[tool.hatch.build.targets.wheel]
+packages = ["quick_rmbg"]
